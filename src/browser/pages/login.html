@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Security-Policy"
+    content="style-src 'self'; script-src 'self' 'unsafe-inline'; manifest-src 'self'; img-src 'self' data:; font-src 'self' data:;" />
+  <title>Login |CodeX</title>
+  <link rel="icon" href="{{CS_STATIC_BASE}}/src/browser/media/favicon-dark-support.svg" />
+  <link rel="alternate icon" href="{{CS_STATIC_BASE}}/src/browser/media/favicon.ico" />
+  <link rel="manifest" href="{{BASE}}/manifest.json" crossorigin="use-credentials" />
+  <link rel="apple-touch-icon" sizes="192x192" href="{{CS_STATIC_BASE}}/src/browser/media/pwa-icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="{{CS_STATIC_BASE}}/src/browser/media/pwa-icon-512.png" />
+  <link href="{{CS_STATIC_BASE}}/src/browser/pages/global.css" rel="stylesheet" />
+  <link href="{{CS_STATIC_BASE}}/src/browser/pages/login.css" rel="stylesheet" />
+  <meta id="coder-options" data-settings="{{OPTIONS}}" />
+</head>
+
+<body>
+  <div class="wrapper bg-gradient-1" data-bg-animate="on">
+    <div class="login-box">
+      <div class="header">
+        <h3 class="main withUsername">
+          Welcome to Codex!
+        </h3>
+        <div class="sub">Please enter your developer password:</div>
+      </div>
+
+      <div class="error-box">
+        {{ERROR}}
+      </div>
+
+      <form method="post" id="codex-from">
+        <div class="user-box">
+          <input class="user" type="text" autocomplete="username" />
+          <input id="base" type="hidden" name="base" value="{{BASE}}" />
+          <input id="href" type="hidden" name="href" value="" />
+
+          <input required autofocus class="password" type="password" name="password" autocomplete="current-password"
+            onkeydown="passKey(event)" />
+          <label>Password</label>
+        </div>
+        <a id="submit-button" href="#" onclick="document.getElementById('codex-from').submit()">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          Let's code!
+        </a>
+      </form>
+    </div>
+
+  </div>
+  <script>
+    const mouseevent = {
+      'view': window,
+      'bubbles': true,
+      'cancelable': true,
+    }
+
+    function hoverOver(element) {
+      typeof element.onmouseover == "function" && element.onmouseover()
+      typeof element.mouseover == "function" && element.mouseover()
+      typeof element.focus == "function" && element.focus()
+
+      element.dispatchEvent(new MouseEvent('mouseover', mouseevent))
+    }
+
+    function hoverLeave(element) {
+      element.dispatchEvent(new MouseEvent('mouseout', mouseevent))
+      element.dispatchEvent(new MouseEvent('mouseleave', mouseevent))
+
+      typeof element.focus == "function" && element.blur()
+      typeof element.onmouseout == "function" && element.onmouseout()
+      typeof element.mouseout == "function" && element.mouseout()
+      typeof element.onmouseleave == "function" && element.onmouseleave()
+      typeof element.mouseleave == "function" && element.mouseleave()
+    }
+
+    function getUser() {
+      let user = new URL(window.location).pathname
+      const regex = /\/codex\/([^\/]+)\//;
+      return user.match(regex)[1];
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = getUser()
+      for (const element of document.getElementsByClassName("withUsername")) {
+        element.innerHTML = element.innerHTML.split("{{USERNAME}}").join(user)
+      }
+    })
+
+    const timoutPromise = (millis) => new Promise(
+      (res) => setTimeout(
+        () => res(),
+        millis
+      )
+    )
+
+    let running = false
+    async function passKey(event) {
+      // 13 = [ENTER]
+      if (running || event.keyCode !== 13) {
+        return
+      }
+      const form = document.getElementById('codex-from')
+      const submit = document.getElementById('submit-button')
+      running = true
+      form.disabled = true
+      await timoutPromise(300)
+      hoverOver(submit)
+      await timoutPromise(300)
+      hoverLeave(submit)
+      await timoutPromise(300)
+      form.submit()
+      await timoutPromise(300)
+      form.disabled = false
+      running = false
+    }
+
+    const el = document.getElementById("href")
+    if (el) {
+      el.value = location.href
+    }
+  </script>
+</body>
+
+</html>
